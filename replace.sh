@@ -1,6 +1,6 @@
 #!/bin/sh
 
-export PATH=/bin:/usr/bin
+export PATH=/bin:/usr/bin:/usr/local/bin
 
 # Check if kubectl present
 if ! command -v kubectl &> /dev/null
