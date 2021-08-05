@@ -16,7 +16,7 @@ if [ -f "/etc/kubernetes/admin.conf" ] || [ ! -f "$HOME/.kube/config" ]; then
 else
     if [ ! -f "/etc/kubernetes/admin.conf" ] || [ -f "$HOME/.kube/config" ]; then
         # echo "Running remotely"
-        export $HOME/.kube/config
+        export KUBECONFIG=$HOME/.kube/config
     else
         echo "Kubernetes configuration file not found"
     fi
