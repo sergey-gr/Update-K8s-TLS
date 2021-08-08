@@ -35,7 +35,7 @@ if [ ! -d "${exportDir}" ]; then mkdir ${exportDir}; fi
 if [ ! -f ${certDir}/tls.key ]; then echo "Private key file '${certDir}/tls.key' not found" && exit 1; fi
 if [ ! -f ${certDir}/tls.crt ]; then echo "Certificate chain file '${certDir}/tls.crt' not found" && exit 1; fi
 if ! grep -q 'BEGIN RSA PRIVATE KEY\|END RSA PRIVATE KEY' "${certDir}/tls.key"; then echo "Invalid private key content" && exit 1; fi
-if ! grep -q 'BEGIN CERTIFICATE\|END CERTIFICATE' "${certDir}/tls.crt"; then echo "Invalid private key content" && exit 1; fi
+if ! grep -q 'BEGIN CERTIFICATE\|END CERTIFICATE' "${certDir}/tls.crt"; then echo "Invalid chain content" && exit 1; fi
 
 # key & chain variables
 tlsKey=$(cat ${certDir}/tls.key | base64 -w 0)
