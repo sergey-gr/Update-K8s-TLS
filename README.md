@@ -1,5 +1,7 @@
 # K8s TLS secrets update
 
+Works only with Nginx ingress controller
+
 ### Preparation of certificates
 
 Put private key content into `cert/tls.key` file
