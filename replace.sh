@@ -9,18 +9,24 @@ then
     exit
 fi
 
+# Set alaias to ignore self-signed certificate verification
+alias kubectl='kubectl --insecure-skip-tls-verify=true'
+
 # Check if script is running on control plane or remotely
 if [ -f "/etc/kubernetes/admin.conf" ] || [ ! -f "$HOME/.kube/config" ]; then
-    # echo "Running on control plane"
+    echo "Running on control plane"
     export KUBECONFIG=/etc/kubernetes/admin.conf
 else
     if [ ! -f "/etc/kubernetes/admin.conf" ] || [ -f "$HOME/.kube/config" ]; then
-        # echo "Running remotely"
+        echo "Running remotely"
         export KUBECONFIG=$HOME/.kube/config
     else
         echo "Kubernetes configuration file not found"
     fi
 fi
+
+# Print current context
+echo "Current context: $(kubectl config current-context)"
 
 # Script variables
 scriptDir="$(cd "$(dirname "$0")" && pwd)"
@@ -34,12 +40,17 @@ excludeTls="" # tls1, tls2,..
 if [ ! -d "${exportDir}" ]; then mkdir ${exportDir}; fi
 if [ ! -f ${certDir}/tls.key ]; then echo "Private key file '${certDir}/tls.key' not found" && exit 1; fi
 if [ ! -f ${certDir}/tls.crt ]; then echo "Certificate chain file '${certDir}/tls.crt' not found" && exit 1; fi
-if ! grep -q 'BEGIN RSA PRIVATE KEY\|END RSA PRIVATE KEY' "${certDir}/tls.key"; then echo "Invalid private key content" && exit 1; fi
+if ! grep -q 'BEGIN PRIVATE KEY\|BEGIN RSA PRIVATE KEY\|END PRIVATE KEY\|END RSA PRIVATE KEY' "${certDir}/tls.key"; then echo "Invalid private key content" && exit 1; fi
 if ! grep -q 'BEGIN CERTIFICATE\|END CERTIFICATE' "${certDir}/tls.crt"; then echo "Invalid chain content" && exit 1; fi
 
 # key & chain variables
-tlsKey=$(cat ${certDir}/tls.key | base64 -w 0)
-tlsCrt=$(cat ${certDir}/tls.crt | base64 -w 0)
+if [[ "$OSTYPE" =~ "darwin"* ]]; then
+    tlsKey=$(cat ${certDir}/tls.key | base64)
+    tlsCrt=$(cat ${certDir}/tls.crt | base64)
+else
+    tlsKey=$(cat ${certDir}/tls.key | base64 -w 0)
+    tlsCrt=$(cat ${certDir}/tls.crt | base64 -w 0)
+fi
 
 # If excludes present...
 if [ -z "${excludeTls}" ]; then
